@@ -1,5 +1,7 @@
 # PubNub
-The PubNub library wraps [PubNub's API](http://www.pubnub.com/) for real time messaging. 
+The [PubNub class](./PubNub.class.nut) wraps [PubNub's API](http://www.pubnub.com/) for real time messaging.
+
+The [MessageBus class](./MessageBus) uses the PubNub API to create seamless device to device communication (through their agents and PubNub).
 
 # Contributors
 - Matt Haines
@@ -33,7 +35,7 @@ pubNub.publish(channel, { foo = "bar" }, function(err, data) {
 		server.log("ERROR: " + err);
 		return;
 	}
-	
+
 	// do something interesting with data.. we're just going to log it:
 	if (data[0] == 1 && data[1] == "Send") {
 		server.log("Success!");
@@ -52,7 +54,7 @@ pubNub.subscribe(["foo", "demo"], function(err, data, tt) {
         server.log(err);
         return;
     }
-    
+
     local logstr = "Received at " + tt + ": "
     local idx = 1;
     foreach (channel, value in data) {
@@ -65,7 +67,7 @@ pubNub.subscribe(["foo", "demo"], function(err, data, tt) {
 });
 ```
 
-The subscribe endpoint will automatically reconnect after each datapoint, however if there is an error, you are responsible for reconnecting. 
+The subscribe endpoint will automatically reconnect after each datapoint, however if there is an error, you are responsible for reconnecting.
 
 ## Getting Channel History
 To get historical values published on a given channel, specify the channel, the max number of values to return, and a callback to execute when the data arrives. The callback takes two parameters: err, and data. The err parameter is null on success. The data parameter is an array of messages.
