@@ -21,7 +21,7 @@ pubNub <- PubNub(publishKey, subscribeKey, secretKey)
 
 You may pass an optional fourth parameter, *uuid*. If you leave this blank, the library will automatically use the last part of your agent URL.
 
-## Publish Data
+## Publish Data: publish()
 
 To publish data, you need to specify the channel and the data. The data can be a basic type (string, integer, etc), an array, or an object:
 
@@ -57,7 +57,7 @@ pubNub.publish(channel, { foo = "bar" }, function(err, data) {
 })
 ```
 
-## Subscribing to Data
+## Subscribing to Data: subscribe()
 
 To subscribe to the channel, you need to specify the channel(s) you are subscribing to and provide a callback function to execute whenever there is more data. The callback function takes three parameters: *err*, *result* and *timetoken*. The *result* parameter is a table containing a channel/value pair for each channel/message received:
 
@@ -85,7 +85,7 @@ pubNub.subscribe(["foo", "demo"], function(err, result, timetoken) {
 
 The subscribe endpoint will automatically reconnect after each datapoint. However, if there is an error, you are responsible for reconnecting.
 
-### Getting Channel History
+### Getting Channel History: history()
 
 To get historical values published on a given channel, specify the channel and the max number of values to return, and provide a callback to execute when the data arrives. The callback takes two parameters: *err* and *data*. The *err* parameter is `null` on success. The *data* parameter is an array of messages.
 
