@@ -98,6 +98,7 @@ pubNub.history("demo", 50, function(err, data) {
     if (err != null) 
     {
         server.error(err)
+        return
     } 
     else 
     {
@@ -117,6 +118,7 @@ pubNub.whereNow(function(err, channels) {
     if (err != null) 
     {
         server.log(err)
+        return
     }
     
     server.log("Currently watching channels: " + http.jsonencode(channels))
@@ -134,6 +136,7 @@ pubNub.hereNow("temp_c", function(err, result) {
     if (err != null) 
     {
         server.log(err)
+        return
     }
     
     server.log(result.occupancy + " Total UUIDs watching temp_c: " + http.jsonencode(result.uuids))
@@ -151,6 +154,7 @@ pubNub.globalHereNow(function(err,result) {
     if (err != null) 
     {
         server.log(err)
+        return
     }
     
     server.log("Other Channels Using this Subscribe Key:")
@@ -173,7 +177,12 @@ pubNub.leave("foo")
 // Check we have left. This should log an error
 
 pubNub.hereNow("foo", function(err, result) {
-    if (err != null) server.log(err)
+    if (err != null)
+    {
+    	server.log(err)
+    	return
+    }
+    
     server.log(result.occupancy + " Total UUIDs watching temp_c: " + http.jsonencode(result.uuids))
 })
 ```
