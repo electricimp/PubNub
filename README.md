@@ -23,7 +23,7 @@ You may pass an optional fourth parameter, *uuid*. If you leave this blank, the 
 
 ### Class Methods
 
-### Publish Data: publish(*channel*, *data*)
+### Publish Data: publish(*channel*, *data*, [*callback*])
 
 To publish data, you need to specify the name of the channel and the data. The channel name is a string. The data can be a basic type (string, integer, etc), an array, or an object:
 
