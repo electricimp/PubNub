@@ -9,7 +9,7 @@ The [MessageBus class](./MessageBus) uses the PubNub API to create seamless devi
 - Matt Haines
 - Tom Byrne
 
-## Usage
+## Class Usage
 
 ### Constructor
 
