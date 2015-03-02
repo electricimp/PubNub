@@ -2,7 +2,7 @@
 
 The [PubNub class](./PubNub.class.nut) wraps [PubNub’s API](http://www.pubnub.com/) for real-time messaging.
 
-The [MessageBus class](./MessageBus) uses the PubNub API to create seamless device to device communication (through their agents and PubNub). The MessageBus class is not yet implemented in Electric Imp’s IDE library.
+The [MessageBus class](./MessageBus) uses the PubNub API to create seamless device to device communication (through their agents and PubNub).
 
 ## Contributors
 
