@@ -4,6 +4,8 @@ The [PubNub class](./PubNub.class.nut) wraps [PubNub’s API](http://www.pubnub.
 
 The [MessageBus class](./MessageBus) uses the PubNub API to create seamless device to device communication (through their agents and PubNub).
 
+**To add this library to your project, add** `#require "PubNub.class.nut:1.0.0"` **to the top of your device code**
+
 ## Contributors
 
 - Matt Haines
