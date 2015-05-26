@@ -5,6 +5,9 @@
 // Wrapper Class for PubNub, a publish-subscribe service
 // REST documentation for PubNub is at http://www.pubnub.com/http-rest-push-api/
 class PubNub {
+
+    static version = [1, 1, 0];
+
     static PUBNUB_BASE = "https://pubsub.pubnub.com";
     static PRESENCE_BASE = "https://pubsub.pubnub.com/v2/presence";
 
