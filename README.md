@@ -27,7 +27,26 @@ You may pass an optional fourth parameter, *uuid*. If you leave this blank, the 
 
 ### Class Methods
 
-### pubNUb.publish(*channel*, *data*, [*callback*])
+### pubNub.auth(authTable)
+
+The *auth* function allows you to modify the Publish-Key and Subscribe-Key after you've instantiated the object, as well as set an Auth-Token if you are using [PubNub Access Manager](https://www.pubnub.com/docs/javascript/tutorial/access-manager.html) (PAM). The authTable can have any of the following keys (unknown keys will be ignored):
+
+```squirrel
+{
+    "auth_key": string,
+    "publish_key": string,
+    "subscribe_key": string
+}
+```
+
+The most common usage of the .auth method is to set a PAM auth token:
+
+```squirrel
+// Set Auth Key for PAM
+pubNub.auth({ auth_key = "<-- Auth Key -->" });
+```
+
+### pubNub.publish(*channel*, *data*, [*callback*])
 
 To publish data, you need to specify the name of the channel and the data. The channel name is a string. The data can be a basic type (string, integer, etc), an array, or an object:
 
