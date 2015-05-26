@@ -10,6 +10,7 @@ class PubNub {
 
     _publishKey = null;
     _subscribeKey = null;
+    _authKey = null;
     _uuid = null;
 
     _subscribe_request = null;
@@ -102,7 +103,7 @@ class PubNub {
 
     // Subscribe to one or more channels
     // Input:
-    //      channels (array) - array of channels to subscribe to
+    //      channelsArray - array of channels to subscribe to
     //      callback (function) - called when new data arrives on any of the subscribed channels
     //          Callback takes three parameters:
     //              err (string) - null on success
@@ -110,36 +111,31 @@ class PubNub {
     //              timetoken - nanoseconds since UNIX epoch, from PubNub service
     //      timetoken (optional) - callback with any new value since (timetoken)
     // Callback will be called once with result = {} and tt = 0 after first subscribing
-    function subscribe(channels, callback, tt = null) {
-        if (tt == null) tt = 0;
+    function subscribe(channelsArray, callback, tt = 0) {
 
-        local channellist = "";
-        local channelidx = 1;
-        foreach (channel in channels) {
-            channellist += channel;
-            if (channelidx < channels.len()) {
-                channellist += ",";
-            }
-            channelidx++;
+        // Build the URL
+        local channels = "";
+        foreach (idx, channel in channelsArray) {
+            channels += channel + ",";
         }
+        if (channels.len() > 0) channels = channels.slice(0, channels.len() - 1);
 
-        local url = format("%s/subscribe/%s/%s/0/%s?uuid=%s", _pubNubBase, _subscribeKey, channellist, tt.tostring(), _uuid);
+        local url = format("%s/subscribe/%s/%s/0/%s?uuid=%s", PUBNUB_BASE, _subscribeKey, channels, tt.tostring(), _uuid);
 
         if (_authKey != null) {
             url += format("&auth=%s", _authKey);
         }
 
+        // Build and send the subscribe request
         if (_subscribe_request) _subscribe_request.cancel();
-
         _subscribe_request = http.get(url);
-        _subscribe_request.sendasync( function(resp) {
+        _subscribe_request.sendasync(function(resp) {
 
             _subscribe_request = null;
             local err = null;
             local data = null;
             local messages = null;
             local rxchannels = null;
-            local tt = null;
             local result = {};
             local timeout = 0.0;
 
@@ -164,7 +160,7 @@ class PubNub {
                             // successfully subscribed; no data yet
                         } else  {
                             // no rxchannels, so we have to fall back on the channel we called with
-                            result[channels[0]] <- messages[0];
+                            result[channelsArray[0]] <- messages[0];
                         }
                     }
                 } catch (ex) {
@@ -175,15 +171,11 @@ class PubNub {
             // callback
             callback(err, result, tt);
 
-            // re-start polling loop
-            // channels and callback are still in scope because we got here with bindenv
-            if (tt == null) tt = 0;
-
-
-            imp.wakeup(timeout, function() { this.subscribe(channels,callback,tt) }.bindenv(this));
+            imp.wakeup(timeout, function() { this.subscribe(channelsArray,callback,tt) }.bindenv(this));
         }.bindenv(this));
     }
-    // Get historical data from a channel
+
+     // Get historical data from a channel
     // Input:
     //      channel (string)
     //      limit - max number of historical messages to receive
