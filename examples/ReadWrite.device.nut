@@ -1,6 +1,5 @@
 led <- hardware.pin9;
-led.configure(DIGITAL_OUT);
-led.write(0);
+led.configure(DIGITAL_OUT, 0);
 
 agent.on("led", function(state) {
     if (state == 0 || state == 1) led.write(state);
