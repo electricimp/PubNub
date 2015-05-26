@@ -17,10 +17,12 @@ class PubNub {
 
     // Class ctor. Specify your publish key, subscribe key, secret key, and optional UUID
     // If you do not provide a UUID, the Agent ID will be used
+    //
+    // This class has no need of secretKey, we are keeping it as a constructor param
+    // to prevent existing code from breaking
     constructor(publishKey, subscribeKey, secretKey, uuid = null) {
         this._publishKey = publishKey;
         this._subscribeKey = subscribeKey;
-        this._secretKey = secretKey;
 
         if (uuid == null) uuid = split(http.agenturl(), "/").top();
         this._uuid = uuid;
@@ -42,6 +44,24 @@ class PubNub {
 
     /******************* PUBLIC MEMBER FUNCTIONS ******************************/
 
+    // Set auth parameters
+    // Input: options (optional) - table
+    //      may contain (auth_key, value), (publish_key, value), and/or (subscribe_key, value) pairs
+    //      calling auth() clears auth data
+    function auth(options = {}) {
+        // grab any keys that were included
+        if ("auth_key" in options) this._authKey = options.auth_key;
+        if ("publish_key" in options) this._pubKey = options.publish_key;
+        if ("subscribe_key" in options) this._subKey = options.subscribe_key;
+
+        // calling auth() clears auth data
+        if (options == {}) {
+            _authKey = null;
+            _pubKey = null;
+            _subKey = null;
+        }
+    }
+
     // Publish a message to a channel
     // Input:   channel (string)
     //          data - squirrel object, will be JSON encoded
@@ -54,7 +74,11 @@ class PubNub {
     function publish(channel, data, callback = null) {
 
         local msg = http.urlencode({m=http.jsonencode(data)}).slice(2);
-        local url = format("%s/publish/%s/%s/%s/%s/%s/%s?uuid=%s", _pubNubBase, _publishKey, _subscribeKey, _secretKey, channel, "0", msg, _uuid);
+        local url = format("%s/publish/%s/%s/%s/%s/%s/%s?uuid=%s", _pubNubBase, _publishKey, _subscribeKey, "0", channel, "0", msg, _uuid);
+
+        if (_authKey != null) {
+            url += format("&auth=%s", _authKey);
+        }
 
         http.get(url).sendasync(function(resp) {
             local err = null;
@@ -87,7 +111,9 @@ class PubNub {
     //              timetoken - nanoseconds since UNIX epoch, from PubNub service
     //      timetoken (optional) - callback with any new value since (timetoken)
     // Callback will be called once with result = {} and tt = 0 after first subscribing
-    function subscribe(channels, callback, tt = 0) {
+    function subscribe(channels, callback, tt = null) {
+        if (tt == null) tt = 0;
+
         local channellist = "";
         local channelidx = 1;
         foreach (channel in channels) {
@@ -97,7 +123,12 @@ class PubNub {
             }
             channelidx++;
         }
+
         local url = format("%s/subscribe/%s/%s/0/%s?uuid=%s", _pubNubBase, _subscribeKey, channellist, tt.tostring(), _uuid);
+
+        if (_authKey != null) {
+            url += format("&auth=%s", _authKey);
+        }
 
         if (_subscribe_request) _subscribe_request.cancel();
 
@@ -111,15 +142,18 @@ class PubNub {
             local rxchannels = null;
             local tt = null;
             local result = {};
+            local timeout = 0.0;
 
             // process data
             if (resp.statuscode != 200) {
                 err = format("%i - %s", resp.statuscode, resp.body);
+                timeout = 0.5;
             } else {
                 try {
                     data = http.jsondecode(resp.body);
                     messages = data[0];
                     tt = data[1];
+
                     if (data.len() > 2) {
                         rxchannels = split(data[2],",");
                         local chidx = 0;
@@ -144,7 +178,10 @@ class PubNub {
 
             // re-start polling loop
             // channels and callback are still in scope because we got here with bindenv
-            this.subscribe(channels,callback,tt);
+            if (tt == null) tt = 0;
+
+
+            imp.wakeup(timeout, function() { this.subscribe(channels,callback,tt) }.bindenv(this));
         }.bindenv(this));
     }
 
@@ -157,6 +194,10 @@ class PubNub {
     //          data - array of historical messages
     function history(channel, limit, callback) {
         local url = format("%s/history/%s/%s/0/%d", _pubNubBase, _subscribeKey, channel, limit);
+
+        if (_authKey != null) {
+            url += format("?auth=%s", _authKey);
+        }
 
         http.get(url).sendasync(function(resp) {
             local err = null;
@@ -179,6 +220,11 @@ class PubNub {
     // Return: None
     function leave(channel) {
         local url = format("%s/sub_key/%s/channel/%s/leave?uuid=%s",_presenceBase,_subscribeKey,channel,_uuid);
+
+        if (_authKey != null) {
+            url += format("&auth=%s", _authKey);
+        }
+
         http.get(url).sendasync(function(resp) {
             local err = null;
             local data = null;
@@ -198,7 +244,9 @@ class PubNub {
     //          channels (array) - list of channels for which this UUID is "present"
     function whereNow(callback, uuid=null) {
         if (uuid == null) uuid=_uuid;
+
         local url = format("%s/sub-key/%s/uuid/%s",_presenceBase,_subscribeKey,uuid);
+
         http.get(url).sendasync(function(resp) {
             local err = null;
             local data = null;
@@ -233,6 +281,11 @@ class PubNub {
     //              uuids - array of UUIDs present on channel
     function hereNow(channel, callback) {
         local url = format("%s/sub-key/%s/channel/%s",_presenceBase,_subscribeKey,channel);
+
+        if (_authKey != null) {
+            url += format("?auth=%s", _authKey);
+        }
+
         http.get(url).sendasync(function(resp) {
             //server.log(resp.body);
             local data = null;
