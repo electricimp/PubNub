@@ -5,13 +5,12 @@
 // Wrapper Class for PubNub, a publish-subscribe service
 // REST documentation for PubNub is at http://www.pubnub.com/http-rest-push-api/
 class PubNub {
-    _pubNubBase = "https://pubsub.pubnub.com";
-    _presenceBase = "https://pubsub.pubnub.com/v2/presence";
+    static PUBNUB_BASE = "https://pubsub.pubnub.com";
+    static PRESENCE_BASE = "https://pubsub.pubnub.com/v2/presence";
 
     _publishKey = null;
     _subscribeKey = null;
-    _secretKey = null;
-    _uuid = null
+    _uuid = null;
 
     _subscribe_request = null;
 
@@ -20,7 +19,7 @@ class PubNub {
     //
     // This class has no need of secretKey, we are keeping it as a constructor param
     // to prevent existing code from breaking
-    constructor(publishKey, subscribeKey, secretKey, uuid = null) {
+    constructor(publishKey, subscribeKey, secretKey = null, uuid = null) {
         this._publishKey = publishKey;
         this._subscribeKey = subscribeKey;
 
@@ -74,7 +73,7 @@ class PubNub {
     function publish(channel, data, callback = null) {
 
         local msg = http.urlencode({m=http.jsonencode(data)}).slice(2);
-        local url = format("%s/publish/%s/%s/%s/%s/%s/%s?uuid=%s", _pubNubBase, _publishKey, _subscribeKey, "0", channel, "0", msg, _uuid);
+        local url = format("%s/publish/%s/%s/%s/%s/%s/%s?uuid=%s", PUBNUB_BASE, _publishKey, _subscribeKey, "0", channel, "0", msg, _uuid);
 
         if (_authKey != null) {
             url += format("&auth=%s", _authKey);
@@ -184,7 +183,6 @@ class PubNub {
             imp.wakeup(timeout, function() { this.subscribe(channels,callback,tt) }.bindenv(this));
         }.bindenv(this));
     }
-
     // Get historical data from a channel
     // Input:
     //      channel (string)
@@ -193,7 +191,7 @@ class PubNub {
     //          err - null on success
     //          data - array of historical messages
     function history(channel, limit, callback) {
-        local url = format("%s/history/%s/%s/0/%d", _pubNubBase, _subscribeKey, channel, limit);
+        local url = format("%s/history/%s/%s/0/%d", PUBNUB_BASE, _subscribeKey, channel, limit);
 
         if (_authKey != null) {
             url += format("?auth=%s", _authKey);
@@ -219,7 +217,7 @@ class PubNub {
     //      channel (string)
     // Return: None
     function leave(channel) {
-        local url = format("%s/sub_key/%s/channel/%s/leave?uuid=%s",_presenceBase,_subscribeKey,channel,_uuid);
+        local url = format("%s/sub_key/%s/channel/%s/leave?uuid=%s",PRESENCE_BASE,_subscribeKey,channel,_uuid);
 
         if (_authKey != null) {
             url += format("&auth=%s", _authKey);
@@ -245,7 +243,7 @@ class PubNub {
     function whereNow(callback, uuid=null) {
         if (uuid == null) uuid=_uuid;
 
-        local url = format("%s/sub-key/%s/uuid/%s",_presenceBase,_subscribeKey,uuid);
+        local url = format("%s/sub-key/%s/uuid/%s",PRESENCE_BASE,_subscribeKey,uuid);
 
         http.get(url).sendasync(function(resp) {
             local err = null;
@@ -280,7 +278,7 @@ class PubNub {
     //              occupancy - number of UUIDs present on channel
     //              uuids - array of UUIDs present on channel
     function hereNow(channel, callback) {
-        local url = format("%s/sub-key/%s/channel/%s",_presenceBase,_subscribeKey,channel);
+        local url = format("%s/sub-key/%s/channel/%s",PRESENCE_BASE,_subscribeKey,channel);
 
         if (_authKey != null) {
             url += format("?auth=%s", _authKey);
@@ -324,7 +322,7 @@ class PubNub {
     //              occupancy - number of UUIDs present on channel
     //              uuids - array of UUIDs present on channel
     function globalHereNow(callback) {
-        local url = format("%s/sub-key/%s",_presenceBase,_subscribeKey);
+        local url = format("%s/sub-key/%s",PRESENCE_BASE,_subscribeKey);
         http.get(url).sendasync(function(resp) {
             //server.log(resp.body);
             local err = null;
