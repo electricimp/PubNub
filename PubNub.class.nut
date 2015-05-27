@@ -107,13 +107,14 @@ class PubNub {
     // Subscribe to one or more channels
     // Input:
     //      channelsArray - array of channels to subscribe to
-    //      callback (function) - called when new data arrives on any of the subscribed channels
-    //          Callback takes three parameters:
-    //              err (string) - null on success
-    //              result (table) - contains (channel, value) pairs for each message received
-    //              timetoken - nanoseconds since UNIX epoch, from PubNub service
-    //      timetoken (optional) - callback with any new value since (timetoken)
-    // Callback will be called once with result = {} and tt = 0 after first subscribing
+    //      callback      - onData callback with three parameters:
+    //          err           - A string containing the error, or null on success
+    //          result        - A table containing (channel, value) pairs for each message
+    //          timetoken     - nanoseconds since UNIX epoch, (from PubNub service)
+    //      [timetoken]   - callback with any new value since (timetoken).
+    //
+    // NOTE1: The callback will be initially called once with result = {} and tt = 0 after first subscribing
+    // NOTE2: Subscribe should generally be called with the timetoken parameter ommited
     function subscribe(channelsArray, callback, tt = 0) {
 
         // Build the URL
