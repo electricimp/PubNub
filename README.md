@@ -4,6 +4,8 @@ The [PubNub class](./PubNub.class.nut) wraps [PubNub’s API](http://www.pubnub.
 
 The [MessageBus class](./MessageBus) uses the PubNub API to create seamless device to device communication (through their agents and PubNub).
 
+[![API Testing](https://img.shields.io/badge/API%20Test-RapidAPI-blue.svg)](https://rapidapi.com/package/PubNub/functions?utm_source=PubnubGithub&utm_medium=button&utm_content=Vender_GitHub)
+
 ## Contributors
 
 - Matt Haines
